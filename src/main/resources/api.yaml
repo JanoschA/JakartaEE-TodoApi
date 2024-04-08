@@ -1,0 +1,180 @@
+openapi: "3.0.2"
+info:
+  title: My Todo API
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /todos:
+    get:
+      summary: Get all todos
+      tags:
+        - Todo
+      responses:
+        '200':
+          $ref: '#/components/responses/TodoArrayResponse'
+    post:
+      summary: Create a new todo
+      tags:
+        - Todo
+      requestBody:
+        $ref: '#/components/requestBodies/TodoRequest'
+      responses:
+        '201':
+          description: Created
+  /todos/progress:
+    get:
+      summary: Get progress percentage of all todos
+      tags:
+        - Todo
+      parameters:
+        - $ref: '#/components/parameters/interval'
+      responses:
+        '200':
+          $ref: '#/components/responses/TodosProgressResponse'
+  /todos/recommended_next_todo:
+    get:
+      summary: Get the next recommended todo
+      tags:
+        - Todo
+      responses:
+        '200':
+          $ref: '#/components/responses/TodoResponse'
+  /todos/{id}:
+    get:
+      summary: Get a todo by id
+      tags:
+        - Todo
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '200':
+          $ref: '#/components/responses/TodoResponse'
+    put:
+      summary: Update a todo by id
+      tags:
+        - Todo
+      parameters:
+        - $ref: '#/components/parameters/id'
+      requestBody:
+        $ref: '#/components/requestBodies/TodoRequest'
+      responses:
+        '204':
+          description: Updated
+    delete:
+      summary: Delete a todo by id
+      tags:
+        - Todo
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Deleted
+  /todos/{id}/complete:
+    put:
+      summary: Mark a todo as completed
+      tags:
+        - Todo
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        '204':
+          description: Updated
+components:
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    interval:
+      name: interval
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - DAY
+          - WEEK
+          - MONTH
+  responses:
+    TodoResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Todo'
+    TodoArrayResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Todo'
+    TodosProgressResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TodosProgress'
+  requestBodies:
+    TodoRequest:
+      required: true
+      description: Todo object that needs to be added
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Todo'
+  schemas:
+    TodosProgress:
+      type: object
+      properties:
+        interval:
+          type: string
+          enum:
+            - DAY
+            - WEEK
+            - MONTH
+        progress_percentage:
+          type: integer
+          format: int32
+        total_todos:
+          type: integer
+          format: int32
+        completed_todos:
+          type: integer
+          format: int32
+        open_todos:
+          type: integer
+          format: int32
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        duration:
+          type: integer
+        priority:
+          type: string
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+        completed:
+          type: boolean
+      required:
+        - title
+        - description
+        - date
+        - duration
+        - priority
+        - completed
